@@ -30,9 +30,9 @@ void MyViewer::build_ui ()
 	p->add ( new UiButton ( "Exit", EvExit ) ); p->top()->separate();
 }
 
-void MyViewer::add_model ( SnShape* s, GsVec p )
+void MyViewer::add_model ( SnShape* s, GsVec p, SnTransform *t )
 {
-	SnManipulator* manip = new SnManipulator;
+	/*SnManipulator* manip = new SnManipulator;
 	GsMat m;
 	m.translation ( p );
 	manip->initial_mat ( m );
@@ -44,32 +44,191 @@ void MyViewer::add_model ( SnShape* s, GsVec p )
 	g->add(l);
 	manip->child(g);
 
-	rootg()->add(manip);
-}
+	rootg()->add(manip);*/
+	SnGroup *g = new SnGroup;
+	g->separator(true);
+	g->add(t);
+	g->add(s);
 
-void MyViewer::build_scene ()
-{
+	rootg()->add(g);
+}
+void MyViewer::buildTorso() {
 	SnPrimitive* p;
 
-	p = new SnPrimitive(GsPrimitive::Box,1,3,1);
-	p->prim().material.diffuse=GsColor::yellow;
-	add_model ( p, GsVec(0,0,0) );
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.5f, 0.6f, 0.5f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0, 0.5f, 0);
+	add_model(p, GsVec(0, 0, 0), torso_T = new SnTransform);
 
-	p = new SnPrimitive(GsPrimitive::Sphere,2);
-	p->prim().material.diffuse=GsColor::red;
-	add_model ( p, GsVec(-4,0,0) );
+	GsMat &t = torso_T->get();
+	GsMat R;
+	GsMat T;
 
-	p = new SnPrimitive(GsPrimitive::Cylinder,1.0,1.0,1.5);
-	p->prim().material.diffuse=GsColor::blue;
-	add_model ( p, GsVec(4,0,0) );
+	R.rotx(GS_TORAD(0.0f));
+	T.translation(GsVec(0, 0, 0));
 
-	p = new SnPrimitive(GsPrimitive::Capsule,1,1,3);
-	p->prim().material.diffuse=GsColor::red;
-	add_model ( p, GsVec(8,0,0) );
+	t.mult(t, R);
+	t.mult(t, T);
+}
+void MyViewer::buildNeck() {
+	SnPrimitive *p;
 
-	p = new SnPrimitive(GsPrimitive::Ellipsoid,2.0,0.5);
-	p->prim().material.diffuse=GsColor::green;
-	add_model ( p, GsVec(-8,0,0) );
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.2f, 0.2f, 0.1f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0, 1.1f, 0);
+	add_model(p, GsVec(0, 0, 0), neck_T = new SnTransform);
+}
+void MyViewer::buildHead() {
+	SnPrimitive *p; 
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.23f, 0.25f, 0.1f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0, 1.5f, 0);
+	add_model(p, GsVec(0, 0, 0), head_T = new SnTransform);
+
+}
+
+void MyViewer::buildPelvis() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.4f, 0.5f, 0.2f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0, -0.2f, 0);
+	add_model(p, GsVec(0, 0, 0), pelvis_T = new SnTransform);
+}
+void MyViewer::buildLeftShoulderJoint() {
+	SnPrimitive* p; 
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.7f, 0.9f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftShoulderJoint_T = new SnTransform);
+}
+void MyViewer::buildRightShoulderJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.7f, 0.9f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightShoulderJoint_T = new SnTransform);
+}
+void MyViewer::buildLeftUpperArm() {
+	SnPrimitive *p; 
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.15f, 0.15f, 0.25f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.7f, 0.5f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftUpperArm_T = new SnTransform);
+}
+void MyViewer::buildRightUpperArm() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.15f, 0.15f, 0.25f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.7f, 0.5f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightUpperArm_T = new SnTransform);
+}
+void MyViewer::buildLeftElbowJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.7f, 0.1f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftElbowJoint_T = new SnTransform);
+}
+void MyViewer::buildRightElbowJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.7f, 0.1f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightElbowJoint_T = new SnTransform);
+}
+void MyViewer::buildLeftLowerArm() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.10f, 0.15f, 0.25f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.7f, -0.3f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftLowerArm_T = new SnTransform);
+}
+void MyViewer::buildRightLowerArm() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.10f, 0.15f, 0.25f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.7f, -0.3f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightLowerArm_T = new SnTransform);
+}
+void MyViewer::buildLeftLegJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.5f, -0.5f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftLegJoint_T = new SnTransform);
+	
+}
+void MyViewer::buildRightLegJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.5f, -0.5f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightLegtJoint_T = new SnTransform);
+}
+void MyViewer::buildLeftUpperLeg() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.15f, 0.15f, 0.3f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.5f, -0.95f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftUpperLeg_T = new SnTransform);
+}
+void MyViewer::buildRightUpperLeg() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.15f, 0.15f, 0.3f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.5f, -0.95f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightUpperLeg_T = new SnTransform);
+}
+void MyViewer::buildLeftKneeJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.5f, -1.4f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftKneeJoint_T = new SnTransform);
+}
+void MyViewer::buildRightKneeJoint() {
+	SnPrimitive* p;
+	p = new SnPrimitive(GsPrimitive::Capsule, 0.15f, 0.15f, 0.01f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.5f, -1.4f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), rightKneeJoint_T = new SnTransform);
+}
+void MyViewer::buildLeftLowerLeg() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.10f, 0.15f, 0.3f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(-0.5f, -1.8f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftLowerLeg_T = new SnTransform);
+}
+void MyViewer::buildRightLowerLeg() {
+	SnPrimitive *p;
+	p = new SnPrimitive(GsPrimitive::Cylinder, 0.10f, 0.15f, 0.3f);
+	p->prim().material.diffuse = GsColor::darkblue;
+	p->prim().center = GsVec(0.5f, -1.8f, 0.0f);
+	add_model(p, GsVec(0, 0, 0), leftLowerLeg_T = new SnTransform);
+}
+void MyViewer::build_scene ()
+{
+	buildTorso();
+	buildNeck();
+	buildHead();
+	buildPelvis();
+	buildLeftShoulderJoint();
+	buildRightShoulderJoint();
+	buildLeftUpperArm();
+	buildRightUpperArm();
+	buildLeftElbowJoint();
+	buildRightElbowJoint();
+	buildLeftLowerArm();
+	buildRightLowerArm();
+	buildLeftLegJoint();
+	buildRightLegJoint();
+	buildLeftUpperLeg();
+	buildRightUpperLeg();
+	buildLeftKneeJoint();
+	buildRightKneeJoint();
+	buildLeftLowerLeg();
+	buildRightLowerLeg();
 }
 
 // Below is an example of how to control the main loop of an animation:

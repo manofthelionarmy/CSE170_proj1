@@ -2,6 +2,7 @@
 
 # include <sig/sn_poly_editor.h>
 # include <sig/sn_lines2.h>
+# include <sig/sn_primitive.h>
 
 # include <sigogl/ui_button.h>
 # include <sigogl/ws_viewer.h>
@@ -25,7 +26,7 @@ class MyViewer : public WsViewer
 	SnTransform *leftLowerArm_T;
 	SnTransform *rightLowerArm_T;
 	SnTransform *leftLegJoint_T;
-	SnTransform *rightLegtJoint_T;
+	SnTransform *rightLegJoint_T;
 	SnTransform *leftUpperLeg_T;
 	SnTransform *rightUpperLeg_T;
 	SnTransform *leftKneeJoint_T;
@@ -35,7 +36,7 @@ class MyViewer : public WsViewer
    public :
 	MyViewer ( int x, int y, int w, int h, const char* l );
 	void build_ui ();
-	void add_model ( SnShape* s, GsVec p, SnTransform *t );
+	void add_model ( SnPrimitive* s, GsVec p, SnTransform *t );
 	void build_scene ();
 	void buildTorso();
 	void buildNeck();
@@ -58,6 +59,39 @@ class MyViewer : public WsViewer
 	void buildLeftLowerLeg();
 	void buildRightLowerLeg();
 	void show_normals ( bool b );
+
+	void posRotXAboutRSJ();//rotate arm about the right shoulder joint about the x-axis in CCW
+	void negRotXAboutRSJ();//rotate arm about the right shoulder joint about the x-axis in CW
+	void posRotYAboutRSJ();
+	void negRotYAboutRSJ();
+	void posRotZAboutRSJ();//rotate arm about the right shoulder joint about the z-axis in CCW
+	void negRotZAboutRSJ();//rotate arm about the right shoulder joint about the z-axis in CW
+
+	void posRotXAboutLSJ();//rotate arm about the left shoulder joint about the x-axis in CCW
+	void negRotXAboutLSJ();//rotate arm about the left shoulder joint about the x-axis in CW
+	void posRotYAboutLSJ();
+	void negRotYAboutLSJ();
+	void negRotZAboutLSJ(); //rotate arm about the left shoulder joint about the z-axis in CW
+	void posRotZAboutLSJ(); //rotate arm about the left shoulder joint aboiut the z-axis in CCW
+
+
+	void posRotXAboutREJ();
+	void negRotXAboutREJ();
+	void posRotYAboutREJ();
+	void negRotYAboutREJ();
+	void posRotZAboutREJ();
+	void negRotZAboutREJ();
+
+	void posRotXAboutLEJ();
+	void negRotXAboutLEJ();
+	void posRotYAboutLEJ();
+	void negRotYAboutLEJ();
+	void posRotZAboutLEJ();
+	void negRotZAboutLEJ();
+
+
+
+	void hello_animation();
 	void run_animation ();
 	virtual int handle_keyboard ( const GsEvent &e ) override;
 	virtual int uievent ( int e ) override;

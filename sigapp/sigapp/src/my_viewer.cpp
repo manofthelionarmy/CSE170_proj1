@@ -30,6 +30,77 @@ void MyViewer::build_ui ()
 	p->add ( new UiButton ( "Exit", EvExit ) ); p->top()->separate();
 }
 
+
+static bool rotateAboutLeftShoulder = false;
+static bool rotateAboutLeftElbow = false; 
+//Relative to shoulder
+static GsVec translateUpperLeftArm_Sh; 
+static GsVec translateLeftElbow_Sh; 
+static GsVec translateLowerLeftArm_Sh; 
+
+//Relative to Elbow
+static GsVec translateLowerLeftArm_El;
+
+static float theta = 0.0f; 
+
+GsVec calculatDeltas(const GsMat& A, const GsMat& B) {
+	//A should be part1, B should be part2, C should be part3, if applicable
+	//Example: A is shoulder joint, B is elbow joint
+
+	float x1 = A.e14;
+	float x2 = B.e14;
+
+	float y1 = A.e24;
+	float y2 = B.e24;
+
+	float z1 = A.e34;
+	float z2 = B.e34;
+
+	float dX =  x1 - x2;
+	float dY =  y1 - y2;
+	float dZ =	z1 - z2;
+
+	/*if (y1 < y2) {
+		dY = y1 - y2;
+	}*/
+
+
+	return GsVec(dX, dY, dZ);
+}
+
+void rotateAboutShoulderX(GsMat &A, GsVec &t, const float theta, const float phi) {
+	GsMat T; 
+	GsMat R;
+	T.translation(t);
+	R.rotx(theta);
+	A.mult(A, T);
+	A.mult(A, R);
+
+	T.translation(-t);
+	A.mult(A, T);
+
+}
+
+void rotateAboutShoulderY(GsMat& A, GsVec &t, const float theta, const float phi ) {
+
+}
+
+void rotateAboutShoulderZ(GsMat& A, GsVec &t, const float theta, const float phi) {
+
+}
+
+void rotateAboutElbowX(GsMat &A, GsVec &t, const float theta) {
+	GsMat T; 
+	GsMat R; 
+	T.translation(t);
+	R.rotx(theta);
+	A.mult(A, T);
+	A.mult(A, R);
+
+	T.translation(-t);
+	A.mult(A, T);
+}
+
 void MyViewer::add_model ( SnPrimitive* s, GsVec p, SnTransform *t )
 {
 	GsModel &a = *s->model(); 
@@ -42,6 +113,7 @@ void MyViewer::add_model ( SnPrimitive* s, GsVec p, SnTransform *t )
 
 	g->add(t);
 	g->add(s);
+	
 	rootg()->add(g);
 }
 void MyViewer::buildTorso() {
@@ -297,17 +369,17 @@ void MyViewer::buildRightLowerLeg() {
 }
 void MyViewer::build_scene ()
 {
-	buildTorso();
-	buildNeck();
-	buildHead();
-	buildPelvis();
-	buildLeftShoulderJoint();
-	buildRightShoulderJoint();
-	buildLeftUpperArm();
-	buildRightUpperArm();
-	buildLeftElbowJoint();
-	buildRightElbowJoint();
-	buildLeftLowerArm();
+	buildTorso();//Index 0
+	buildNeck();//Index 1
+	buildHead();//Index 2
+	buildPelvis();//Index 3
+	buildLeftShoulderJoint();//Index 4
+	buildRightShoulderJoint();//Index 5
+	buildLeftUpperArm();//Index 6
+	buildRightUpperArm();//Index 7
+	buildLeftElbowJoint();//Index 8
+	buildRightElbowJoint();//Index 9
+	buildLeftLowerArm();//Index 10
 	buildRightLowerArm();
 	buildLeftLegJoint();
 	buildRightLegJoint();
@@ -317,6 +389,12 @@ void MyViewer::build_scene ()
 	buildRightKneeJoint();
 	buildLeftLowerLeg();
 	buildRightLowerLeg();
+
+	translateUpperLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftUpperArm_T->get());
+	translateLeftElbow_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftElbowJoint_T->get());
+	translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
+
+	translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
 }
 
 // Below is an example of how to control the main loop of an animation:
@@ -355,27 +433,9 @@ void MyViewer::negRotXAboutLSJ() {
 	GsMat T;
 
 
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-	R.rotx(GS_TORAD(-6.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	leftElbowRotMat.mult(leftElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-	leftLowerArmMat.mult(leftLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
+	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f, theta);
+	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, -6.0f, theta);
+	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f, theta);
 
 
 	render(); // notify it needs redraw
@@ -389,28 +449,10 @@ void MyViewer::posRotXAboutLSJ() {
 	GsMat R;
 	GsMat T;
 
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-	R.rotx(GS_TORAD(6.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	leftElbowRotMat.mult(leftElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-	leftLowerArmMat.mult(leftLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
+	
+	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f, theta);
+	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, 6.0f, theta);
+	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f, theta);
 
 
 	render(); // notify it needs redraw
@@ -778,51 +820,54 @@ void MyViewer::negRotZAboutRSJ() {
 //Left Elbow Joint
 
 void MyViewer::negRotXAboutLEJ() {
+	GsMat &leftShoulder = leftShoulderJoint_T->get();
 	GsMat &leftElbowJoint = leftElbowJoint_T->get();
 	GsMat &lowerLeftArm = leftLowerArm_T->get();
 	GsMat T; 
 	GsMat R;
 	
+	//GsVec translateElbow = calculatDeltas(leftShoulder, leftElbowJoint);
+	//GsVec translateLowerArm = calculatDeltas(leftElbowJoint, lowerLeftArm);
 
-	float y1 = lowerLeftArm.e24;
-	float y2 = leftElbowJoint.e24;
+	//R.rotx(GS_TORAD(-6.0f));
 
-	float delta = y2 - y1; 
-	
-	T.translation(0.0, delta, 0.0);
-	lowerLeftArm.mult(lowerLeftArm, T);
-	
-	R.rotx(GS_TORAD(-6.0f));
+	//theta += 6.0f; 
+	//T.translation(translateLowerLeftArm_El);//This time, it's negative becuase the lower arm is in the negative y-axis!!!!
+	//lowerLeftArm.mult(lowerLeftArm, T);
 
-	lowerLeftArm.mult(lowerLeftArm, R);
+	//lowerLeftArm.mult(lowerLeftArm, R);
 
-	T.translation(0.0, -delta, 0.0);
+	//T.translation(-translateLowerLeftArm_El);
 
-	lowerLeftArm.mult(lowerLeftArm, T);
+	//lowerLeftArm.mult(lowerLeftArm, T);
+	theta += 6.0f; 
+
+	rotateAboutElbowX(lowerLeftArm, translateLowerLeftArm_El, -6.0f);
 
 	render();
 	ws_check();
 }
 void MyViewer::posRotXAboutLEJ() {
+	GsMat &leftShoulder = leftShoulderJoint_T->get();
 	GsMat &leftElbowJoint = leftElbowJoint_T->get();
 	GsMat &lowerLeftArm = leftLowerArm_T->get();
 	GsMat T;
 	GsMat R;
 
-	float y1 = lowerLeftArm.e24;
-	float y2 = leftElbowJoint.e24;
+	//GsVec translateLowerArm = calculatDeltas(leftElbowJoint, lowerLeftArm);
 
-	float delta = y2 - y1;
-	T.translation(0.0, delta, 0.0);
-	lowerLeftArm.mult(lowerLeftArm, T);
+	//R.rotx(GS_TORAD(6.0f));
+	//theta -= 6.0f; 
+	//T.translation(translateLowerLeftArm_El);//This time, it's negative becuase the lower arm is in the negative y-axis!!!!
+	//lowerLeftArm.mult(lowerLeftArm, T);
 
-	R.rotx(GS_TORAD(6.0f));
+	//lowerLeftArm.mult(lowerLeftArm, R);
 
-	lowerLeftArm.mult(lowerLeftArm, R);
+	//T.translation(-translateLowerLeftArm_El);
 
-	T.translation(0.0, -delta, 0.0);
-
-	lowerLeftArm.mult(lowerLeftArm, T);
+	//lowerLeftArm.mult(lowerLeftArm, T);
+	theta -= 6.0f;
+	rotateAboutElbowX(lowerLeftArm, translateLowerLeftArm_El, 6.0f);
 
 	render();
 	ws_check();
@@ -965,7 +1010,24 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			return  1; 
 		}
 		case 'q': {
-			negRotZAboutLSJ();
+
+			if (rotateAboutLeftElbow == false && rotateAboutLeftShoulder == false) {
+				rotateAboutLeftShoulder = true;
+				negRotZAboutLSJ();
+
+			}
+			else if (rotateAboutLeftShoulder && rotateAboutLeftElbow == false) {
+				negRotZAboutLSJ();
+			}
+			else if (rotateAboutLeftElbow && rotateAboutLeftShoulder == false) {
+				rotateAboutLeftElbow = false;
+				rotateAboutLeftShoulder = true; 
+				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
+
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			}
+			//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
+
 			return 1; 
 		}
 		case 'w': {
@@ -981,7 +1043,56 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			return 1; 
 		}
 		case 'a': {
-			negRotXAboutLSJ();
+
+			if (rotateAboutLeftElbow == false && rotateAboutLeftShoulder == false) {
+				rotateAboutLeftShoulder = true;
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+				negRotXAboutLSJ();
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+
+				ws_check();
+				render();
+				//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
+			}
+			else if (rotateAboutLeftShoulder && rotateAboutLeftElbow == false) {
+				
+				//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+				negRotXAboutLSJ();
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+
+				ws_check();
+				render();
+				//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
+			}
+			else if (rotateAboutLeftElbow && rotateAboutLeftShoulder == false) {
+				rotateAboutLeftElbow = false;
+
+				rotateAboutLeftShoulder = true;
+				
+
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+				negRotXAboutLSJ();
+				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+				/*GsMat &lowerLeftArm = leftLowerArm_T->get();
+				GsMat T;
+				GsMat R; 
+				T.translation(translateLowerLeftArm_El);
+				R.rotx(theta);
+				
+				lowerLeftArm.mult(lowerLeftArm, T);
+				lowerLeftArm.mult(lowerLeftArm, R);
+
+				T.translation(-translateLowerLeftArm_El);
+				lowerLeftArm.mult(lowerLeftArm, T);*/
+
+				ws_check();
+				render();
+				//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
+				//negRotXAboutLSJ();
+				/*translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());*/
+			}
+			
 			return 1; 
 		}
 		case 's': {
@@ -1005,7 +1116,30 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			return 1; 
 		}
 		case 'e': {
-			negRotXAboutLEJ();
+			if (rotateAboutLeftShoulder == false && rotateAboutLeftElbow == false) {
+				rotateAboutLeftElbow = true;
+				
+				negRotXAboutLEJ();
+				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
+
+			}
+			else if (rotateAboutLeftElbow == true && rotateAboutLeftShoulder == false) {
+				
+				negRotXAboutLEJ();
+				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
+			}
+			else if (rotateAboutLeftShoulder && rotateAboutLeftElbow == false) {
+				rotateAboutLeftElbow = true;
+				rotateAboutLeftShoulder = false;
+
+				//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
+				
+				negRotXAboutLEJ();
+				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
+			}
+
+			//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
+			
 			return 1; 
 		}
 		case 'r': {

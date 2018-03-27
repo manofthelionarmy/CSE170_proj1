@@ -38,10 +38,16 @@ static GsVec translateUpperLeftArm_Sh;
 static GsVec translateLeftElbow_Sh; 
 static GsVec translateLowerLeftArm_Sh; 
 
+static GsVec translateUpperRightArm_Sh;
+static GsVec translateRightElbow_Sh;
+static GsVec translateLowerRightArm_Sh;
+
 //Relative to Elbow
 static GsVec translateLowerLeftArm_El;
+static GsVec translateLowerRightArm_El;
 
 static float theta = 0.0f; 
+static float phi = 0.0f; 
 
 GsVec calculatDeltas(const GsMat& A, const GsMat& B) {
 	//A should be part1, B should be part2, C should be part3, if applicable
@@ -60,15 +66,10 @@ GsVec calculatDeltas(const GsMat& A, const GsMat& B) {
 	float dY =  y1 - y2;
 	float dZ =	z1 - z2;
 
-	/*if (y1 < y2) {
-		dY = y1 - y2;
-	}*/
-
-
 	return GsVec(dX, dY, dZ);
 }
 
-void rotateAboutShoulderX(GsMat &A, GsVec &t, const float theta, const float phi) {
+void rotateAboutShoulderX(GsMat &A, GsVec &t, const float theta) {
 	GsMat T; 
 	GsMat R;
 	T.translation(t);
@@ -81,12 +82,28 @@ void rotateAboutShoulderX(GsMat &A, GsVec &t, const float theta, const float phi
 
 }
 
-void rotateAboutShoulderY(GsMat& A, GsVec &t, const float theta, const float phi ) {
+void rotateAboutShoulderY(GsMat& A, GsVec &t, const float theta) {
+	GsMat T;
+	GsMat R;
+	T.translation(t);
+	R.roty(theta);
+	A.mult(A, T);
+	A.mult(A, R);
 
+	T.translation(-t);
+	A.mult(A, T);
 }
 
-void rotateAboutShoulderZ(GsMat& A, GsVec &t, const float theta, const float phi) {
+void rotateAboutShoulderZ(GsMat& A, GsVec &t, const float theta) {
+	GsMat T;
+	GsMat R;
+	T.translation(t);
+	R.rotz(theta);
+	A.mult(A, T);
+	A.mult(A, R);
 
+	T.translation(-t);
+	A.mult(A, T);
 }
 
 void rotateAboutElbowX(GsMat &A, GsVec &t, const float theta) {
@@ -394,7 +411,12 @@ void MyViewer::build_scene ()
 	translateLeftElbow_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftElbowJoint_T->get());
 	translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
 
+	translateUpperRightArm_Sh = calculatDeltas(rightShoulderJoint_T->get(), rightUpperArm_T->get());
+	translateRightElbow_Sh = calculatDeltas(rightShoulderJoint_T->get(), rightElbowJoint_T->get());
+	translateLowerRightArm_Sh = calculatDeltas(rightShoulderJoint_T->get(), rightLowerArm_T->get());
+
 	translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
+	translateLowerRightArm_El = calculatDeltas(rightElbowJoint_T->get(), rightLowerArm_T->get());
 }
 
 // Below is an example of how to control the main loop of an animation:
@@ -429,104 +451,47 @@ void MyViewer::negRotXAboutLSJ() {
 	GsMat& leftElbowRotMat = leftElbowJoint_T->get();
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
 
-	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f, theta);
-	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, -6.0f, theta);
-	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f, theta);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
+	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	
 }
 void MyViewer::posRotXAboutLSJ() {
 	GsMat& leftShoulderRotMat = leftShoulderJoint_T->get();
 	GsMat& leftElbowRotMat = leftElbowJoint_T->get();
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
 	
-	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f, theta);
-	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, 6.0f, theta);
-	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f, theta);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
+	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::negRotYAboutLSJ() {
 	GsMat& leftShoulderRotMat = leftShoulderJoint_T->get();
 	GsMat& leftElbowRotMat = leftElbowJoint_T->get();
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
 
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-	R.roty(GS_TORAD(-6.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, R);
 
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
+	rotateAboutShoulderY(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutShoulderY(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutShoulderY(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	leftElbowRotMat.mult(leftElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-	leftLowerArmMat.mult(leftLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
 }
 void MyViewer::posRotYAboutLSJ() {
 	GsMat& leftShoulderRotMat = leftShoulderJoint_T->get();
 	GsMat& leftElbowRotMat = leftElbowJoint_T->get();
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
 
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-	R.roty(GS_TORAD(6.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	leftElbowRotMat.mult(leftElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-	leftLowerArmMat.mult(leftLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
+	rotateAboutShoulderY(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutShoulderY(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutShoulderY(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 
 }
 void MyViewer::posRotZAboutLSJ() {
@@ -534,35 +499,12 @@ void MyViewer::posRotZAboutLSJ() {
 	GsMat& leftElbowRotMat = leftElbowJoint_T->get();
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
 
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-	R.rotz(GS_TORAD(6.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, R);
+	rotateAboutShoulderZ(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutShoulderZ(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutShoulderZ(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	leftElbowRotMat.mult(leftElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-	leftLowerArmMat.mult(leftLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
 }
 void MyViewer::negRotZAboutLSJ() {
 
@@ -570,35 +512,10 @@ void MyViewer::negRotZAboutLSJ() {
 	GsMat& leftElbowRotMat = leftElbowJoint_T->get();
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-	R.rotz(GS_TORAD(-6.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	leftUpperArmMat.mult(leftUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	leftElbowRotMat.mult(leftElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	leftElbowRotMat.mult(leftElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-	leftLowerArmMat.mult(leftLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	leftLowerArmMat.mult(leftLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
+	rotateAboutShoulderZ(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutShoulderZ(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutShoulderZ(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 
 }
 
@@ -608,106 +525,30 @@ void MyViewer::negRotXAboutRSJ() {
 	GsMat& rightElbowRotMat = rightElbowJoint_T->get();
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-	R.rotx(GS_TORAD(-6.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	rightElbowRotMat.mult(rightElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	rightLowerArmMat.mult(rightLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now	
+	rotateAboutShoulderX(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutShoulderX(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutShoulderX(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 }
 void MyViewer::posRotXAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
 	GsMat& rightElbowRotMat = rightElbowJoint_T->get();
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
-	GsMat R;
-	GsMat T;
-
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-	R.rotx(GS_TORAD(6.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	rightElbowRotMat.mult(rightElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	rightLowerArmMat.mult(rightLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now	
-
+	
+	rotateAboutShoulderX(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutShoulderX(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutShoulderX(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::negRotYAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
 	GsMat& rightElbowRotMat = rightElbowJoint_T->get();
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-	R.roty(GS_TORAD(-6.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	rightElbowRotMat.mult(rightElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	rightLowerArmMat.mult(rightLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now	
+	rotateAboutShoulderY(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutShoulderY(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutShoulderY(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 }
 void MyViewer::posRotYAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
@@ -718,31 +559,9 @@ void MyViewer::posRotYAboutRSJ() {
 	GsMat T;
 
 
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-	R.roty(GS_TORAD(6.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	rightElbowRotMat.mult(rightElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	rightLowerArmMat.mult(rightLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now	
+	rotateAboutShoulderY(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutShoulderY(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutShoulderY(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::posRotZAboutRSJ() {
 
@@ -750,71 +569,19 @@ void MyViewer::posRotZAboutRSJ() {
 	GsMat& rightElbowRotMat = rightElbowJoint_T->get();
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
-	GsMat R;
-	GsMat T;
-
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-	R.rotz(GS_TORAD(6.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	rightElbowRotMat.mult(rightElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	rightLowerArmMat.mult(rightLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
-
+	rotateAboutShoulderZ(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutShoulderZ(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutShoulderZ(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::negRotZAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
 	GsMat& rightElbowRotMat = rightElbowJoint_T->get();
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
-	GsMat R;
-	GsMat T;
 
-
-	T.translation(GsVec(0.0f, 0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-	R.rotz(GS_TORAD(-6.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, R);
-
-	T.translation(GsVec(0.0f, -0.4f, 0.0f));
-	rightUpperArmMat.mult(rightUpperArmMat, T);
-
-	T.translation(GsVec(0.0f, 0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	rightElbowRotMat.mult(rightElbowRotMat, R);
-
-	T.translation(GsVec(0.0f, -0.8f, 0.0f));
-	rightElbowRotMat.mult(rightElbowRotMat, T);
-
-	T.translation(GsVec(0.0f, 1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-	rightLowerArmMat.mult(rightLowerArmMat, R);
-	T.translation(GsVec(0.0f, -1.2f, 0.0f));
-	rightLowerArmMat.mult(rightLowerArmMat, T);
-
-
-	render(); // notify it needs redraw
-	ws_check(); // redraw now		
+	rotateAboutShoulderZ(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutShoulderZ(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutShoulderZ(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 }
 
 //Left Elbow Joint
@@ -826,26 +593,10 @@ void MyViewer::negRotXAboutLEJ() {
 	GsMat T; 
 	GsMat R;
 	
-	//GsVec translateElbow = calculatDeltas(leftShoulder, leftElbowJoint);
-	//GsVec translateLowerArm = calculatDeltas(leftElbowJoint, lowerLeftArm);
-
-	//R.rotx(GS_TORAD(-6.0f));
-
-	//theta += 6.0f; 
-	//T.translation(translateLowerLeftArm_El);//This time, it's negative becuase the lower arm is in the negative y-axis!!!!
-	//lowerLeftArm.mult(lowerLeftArm, T);
-
-	//lowerLeftArm.mult(lowerLeftArm, R);
-
-	//T.translation(-translateLowerLeftArm_El);
-
-	//lowerLeftArm.mult(lowerLeftArm, T);
 	theta += 6.0f; 
 
 	rotateAboutElbowX(lowerLeftArm, translateLowerLeftArm_El, -6.0f);
 
-	render();
-	ws_check();
 }
 void MyViewer::posRotXAboutLEJ() {
 	GsMat &leftShoulder = leftShoulderJoint_T->get();
@@ -854,36 +605,35 @@ void MyViewer::posRotXAboutLEJ() {
 	GsMat T;
 	GsMat R;
 
-	//GsVec translateLowerArm = calculatDeltas(leftElbowJoint, lowerLeftArm);
-
-	//R.rotx(GS_TORAD(6.0f));
-	//theta -= 6.0f; 
-	//T.translation(translateLowerLeftArm_El);//This time, it's negative becuase the lower arm is in the negative y-axis!!!!
-	//lowerLeftArm.mult(lowerLeftArm, T);
-
-	//lowerLeftArm.mult(lowerLeftArm, R);
-
-	//T.translation(-translateLowerLeftArm_El);
-
-	//lowerLeftArm.mult(lowerLeftArm, T);
+	
 	theta -= 6.0f;
 	rotateAboutElbowX(lowerLeftArm, translateLowerLeftArm_El, 6.0f);
 
-	render();
-	ws_check();
+}
+
+void MyViewer::negRotXAboutREJ() {
+	GsMat &rightShoulder = rightShoulderJoint_T->get();
+	GsMat &rightElbowJoint = rightElbowJoint_T->get();
+	GsMat &lowerRightArm = rightLowerArm_T->get();
+	GsMat T;
+	GsMat R;
+
+	phi += 6.0f;
+
+	rotateAboutElbowX(lowerRightArm, translateLowerRightArm_El, -6.0f);
 
 }
-void MyViewer::negRotYAboutLEJ() {
 
-}
-void MyViewer::posRotYAboutLEJ() {
+void MyViewer::posRotXAboutREJ() {
+	GsMat &rightShoulder = rightShoulderJoint_T->get();
+	GsMat &rightElbowJoint = rightElbowJoint_T->get();
+	GsMat &lowerRightArm = rightLowerArm_T->get();
+	GsMat T;
+	GsMat R;
 
-}
-void MyViewer::negRotZAboutLEJ() {
+	phi -= 6.0f;
 
-}
-void MyViewer::posRotZAboutLEJ() {
-
+	rotateAboutElbowX(lowerRightArm, translateLowerRightArm_El, 6.0f);
 }
 
 void MyViewer::hello_animation() {
@@ -911,13 +661,7 @@ void MyViewer::hello_animation() {
 		double end = t; 
 
 		double elapsed_seconds = end - start; 
-		//float x = 0.01f; 
-		//
-		//float y1 = parabolicCurve(x, 0.001f, 0.4f); //right shoulder
-		//float y2 = parabolicCurve(x, 0.1f, 0.001f); //right arm
-		//float y3 = parabolicCurve(x, 0.01f, -0.4f);//right elbow
-		/*float x = 0.05f * cosf(GS_TORAD(theta));
-		float y = 0.05f * sinf(GS_TORAD(theta));*/
+		
 
 		if (elapsed_seconds >= 1.0) {
 			seconds += 1.0; 
@@ -1000,143 +744,115 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			hello_animation();
 			return 1; 
 		}
-		case 'i':{
+		case 'o':{
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			posRotZAboutRSJ();
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			ws_check();
+			render();
 			return 1; 
 
 		}
-		case 'u': {
+		case 'p': {
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			negRotZAboutRSJ();
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+
+			ws_check();
+			render();
 			return  1; 
 		}
 		case 'q': {
-
-			if (rotateAboutLeftElbow == false && rotateAboutLeftShoulder == false) {
-				rotateAboutLeftShoulder = true;
-				negRotZAboutLSJ();
-
-			}
-			else if (rotateAboutLeftShoulder && rotateAboutLeftElbow == false) {
-				negRotZAboutLSJ();
-			}
-			else if (rotateAboutLeftElbow && rotateAboutLeftShoulder == false) {
-				rotateAboutLeftElbow = false;
-				rotateAboutLeftShoulder = true; 
-				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
-
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
-			}
-			//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			posRotZAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			ws_check();
+			render();
 
 			return 1; 
 		}
 		case 'w': {
-			posRotZAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			negRotZAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'j': {
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			negRotXAboutRSJ();
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'k': {
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			posRotXAboutRSJ();
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'a': {
 
-			if (rotateAboutLeftElbow == false && rotateAboutLeftShoulder == false) {
-				rotateAboutLeftShoulder = true;
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
-				negRotXAboutLSJ();
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			negRotXAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 
-				ws_check();
-				render();
-				//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
-			}
-			else if (rotateAboutLeftShoulder && rotateAboutLeftElbow == false) {
-				
-				//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
-				negRotXAboutLSJ();
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
-
-				ws_check();
-				render();
-				//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
-			}
-			else if (rotateAboutLeftElbow && rotateAboutLeftShoulder == false) {
-				rotateAboutLeftElbow = false;
-
-				rotateAboutLeftShoulder = true;
-				
-
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
-				negRotXAboutLSJ();
-				rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
-				/*GsMat &lowerLeftArm = leftLowerArm_T->get();
-				GsMat T;
-				GsMat R; 
-				T.translation(translateLowerLeftArm_El);
-				R.rotx(theta);
-				
-				lowerLeftArm.mult(lowerLeftArm, T);
-				lowerLeftArm.mult(lowerLeftArm, R);
-
-				T.translation(-translateLowerLeftArm_El);
-				lowerLeftArm.mult(lowerLeftArm, T);*/
-
-				ws_check();
-				render();
-				//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
-				//negRotXAboutLSJ();
-				/*translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());*/
-			}
+			ws_check();
+			render();
 			
 			return 1; 
 		}
 		case 's': {
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			posRotXAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'z': {
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			negRotYAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'x': {
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			posRotYAboutLSJ();
+			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'm': {
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			negRotYAboutRSJ();
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			ws_check();
+			render();
 			return 1; 
 		}
 		case ',': {
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			posRotYAboutRSJ();
+			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			ws_check();
+			render();
 			return 1; 
 		}
 		case 'e': {
-			if (rotateAboutLeftShoulder == false && rotateAboutLeftElbow == false) {
-				rotateAboutLeftElbow = true;
-				
-				negRotXAboutLEJ();
-				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
+			negRotXAboutLEJ();
 
-			}
-			else if (rotateAboutLeftElbow == true && rotateAboutLeftShoulder == false) {
-				
-				negRotXAboutLEJ();
-				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
-			}
-			else if (rotateAboutLeftShoulder && rotateAboutLeftElbow == false) {
-				rotateAboutLeftElbow = true;
-				rotateAboutLeftShoulder = false;
-
-				//translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
-				
-				negRotXAboutLEJ();
-				/*translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());*/
-			}
+			ws_check();
+			render();
 
 			//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
 			
@@ -1144,7 +860,24 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 		}
 		case 'r': {
 			posRotXAboutLEJ();
+
+			ws_check();
+			render();
 			return 1; 
+		}
+		case 'u': {
+			posRotXAboutREJ();
+			ws_check();
+			render();
+
+			return 1; 
+		}
+		case 'i': {
+			negRotXAboutREJ();
+			ws_check();
+			render();
+
+			return 1;
 		}
 		/*case 'n' : { bool b=!_nbut->value(); _nbut->value(b); show_normals(b); return 1; }*/
 		default: gsout<<"Key pressed: "<<e.key<<gsnl;

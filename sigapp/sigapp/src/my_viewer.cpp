@@ -55,8 +55,15 @@ static GsVec translateUpperRightLeg_LJ;
 static GsVec translateRigthKnee_LJ; 
 static GsVec translateLowerRightLeg_LJ; 
 
+//Relative to Knee
+
+static GsVec translateLowerLeftLeg_KJ;
+static GsVec tranlsateLowerRightLeg_KJ;
+
 static float theta = 0.0f; 
 static float phi = 0.0f; 
+static float alpha = 0.0f; 
+static float beta = 0.0f; 
 
 GsVec calculatDeltas(const GsMat& A, const GsMat& B) {
 	//A should be part1, B should be part2, C should be part3, if applicable
@@ -383,17 +390,17 @@ void MyViewer::buildRightLowerLeg() {
 }
 void MyViewer::build_scene ()
 {
-	buildTorso();//Index 0
-	buildNeck();//Index 1
-	buildHead();//Index 2
-	buildPelvis();//Index 3
-	buildLeftShoulderJoint();//Index 4
-	buildRightShoulderJoint();//Index 5
-	buildLeftUpperArm();//Index 6
-	buildRightUpperArm();//Index 7
-	buildLeftElbowJoint();//Index 8
-	buildRightElbowJoint();//Index 9
-	buildLeftLowerArm();//Index 10
+	buildTorso();
+	buildNeck();
+	buildHead();
+	buildPelvis();
+	buildLeftShoulderJoint();
+	buildRightShoulderJoint();
+	buildLeftUpperArm();
+	buildRightUpperArm();
+	buildLeftElbowJoint();
+	buildRightElbowJoint();
+	buildLeftLowerArm();
 	buildRightLowerArm();
 	buildLeftLegJoint();
 	buildRightLegJoint();
@@ -422,6 +429,8 @@ void MyViewer::build_scene ()
 	translateUpperLeftLeg_LJ = calculatDeltas(leftLegJoint_T->get(), leftUpperLeg_T->get());
 	translateLeftKnee_LJ = calculatDeltas(leftLegJoint_T->get(), leftKneeJoint_T->get());
 	translateLowerLeftLeg_LJ = calculatDeltas(leftLegJoint_T->get(), leftLowerLeg_T->get());
+
+	translateLowerLeftLeg_KJ = calculatDeltas(leftKneeJoint_T->get(), leftLowerLeg_T->get());
 
 
 }
@@ -645,9 +654,9 @@ void MyViewer::posRotXAboutREJ() {
 
 void MyViewer::posRotXAboutLLJ() {
 
-	rotateAboutJointX(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, 6.0);
-	rotateAboutJointX(leftKneeJoint_T->get(), translateLeftKnee_LJ, 6.0);
-	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, 6.0);
+	rotateAboutJointX(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, 6.0f);
+	rotateAboutJointX(leftKneeJoint_T->get(), translateLeftKnee_LJ, 6.0f);
+	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, 6.0f);
 }
 
 void MyViewer::posRotYAboutLLJ() {
@@ -679,6 +688,16 @@ void MyViewer::negRotZAboutLLJ() {
 	rotateAboutJointZ(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, -6.0);
 }
 
+void MyViewer::posRotXAboutLKJ() {
+
+	alpha -= 6.0f;
+	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, 6.0f);
+}
+
+void MyViewer::negRotXAboutLKJ() {
+	alpha += 6.0f;
+	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -6.0f);
+}
 
 void MyViewer::hello_animation() {
 	if (_animating) return; // avoid recursive calls
@@ -922,38 +941,64 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			return 1;
 		}
 		case 'd': {
+
+			
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, alpha);
 			posRotXAboutLLJ();
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -alpha);
 			ws_check();
 			render();
 
 			return 1; 
 		}
 		case 'c': {
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, alpha);
 			posRotYAboutLLJ();
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -alpha);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 't': {
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, alpha);
 			posRotyZAboutLLJ();
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -alpha);
 			ws_check();
 			render();
 			return 1; 
 		}
-		case 'g': {
+		case 'f': {
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, alpha);
 			negRotXAboutLLJ();
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -alpha);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'v': {
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, alpha);
 			negRotYAboutLLJ();
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -alpha);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'b': {
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, alpha);
 			negRotZAboutLLJ();
+			ws_check();
+			rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -alpha);
+			render();
+			return 1; 
+		}
+		case 'g': {
+			posRotXAboutLKJ();
+			ws_check();
+			render();
+			return 1; 
+		}
+		case '5': {
+			negRotXAboutLKJ();
 			ws_check();
 			render();
 			return 1; 

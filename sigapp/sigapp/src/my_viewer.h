@@ -77,17 +77,23 @@ class MyViewer : public WsViewer
 
 	void posRotXAboutREJ();
 	void negRotXAboutREJ();
-	void posRotYAboutREJ();
-	void negRotYAboutREJ();
-	void posRotZAboutREJ();
-	void negRotZAboutREJ();
+	
 
 	void posRotXAboutLEJ();
 	void negRotXAboutLEJ();
-	void posRotYAboutLEJ();
-	void negRotYAboutLEJ();
-	void posRotZAboutLEJ();
-	void negRotZAboutLEJ();
+	
+	//Leg Rotations
+
+	void posRotXAboutLLJ();
+	void posRotYAboutLLJ();
+	void posRotyZAboutLLJ();
+
+	void negRotXAboutLLJ(); 
+	void negRotYAboutLLJ();
+	void negRotZAboutLLJ();
+
+	void posRotXAboutLKJ();
+	void negRotXAboutLKJ();
 
 
 

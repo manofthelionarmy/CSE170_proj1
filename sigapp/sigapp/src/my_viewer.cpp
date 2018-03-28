@@ -46,6 +46,15 @@ static GsVec translateLowerRightArm_Sh;
 static GsVec translateLowerLeftArm_El;
 static GsVec translateLowerRightArm_El;
 
+//Relative to Leg Joint
+static GsVec translateUpperLeftLeg_LJ;
+static GsVec translateLeftKnee_LJ;
+static GsVec translateLowerLeftLeg_LJ;
+
+static GsVec translateUpperRightLeg_LJ;
+static GsVec translateRigthKnee_LJ; 
+static GsVec translateLowerRightLeg_LJ; 
+
 static float theta = 0.0f; 
 static float phi = 0.0f; 
 
@@ -69,7 +78,7 @@ GsVec calculatDeltas(const GsMat& A, const GsMat& B) {
 	return GsVec(dX, dY, dZ);
 }
 
-void rotateAboutShoulderX(GsMat &A, GsVec &t, const float theta) {
+void rotateAboutJointX(GsMat &A, GsVec &t, const float theta) {
 	GsMat T; 
 	GsMat R;
 	T.translation(t);
@@ -82,7 +91,7 @@ void rotateAboutShoulderX(GsMat &A, GsVec &t, const float theta) {
 
 }
 
-void rotateAboutShoulderY(GsMat& A, GsVec &t, const float theta) {
+void rotateAboutJointY(GsMat& A, GsVec &t, const float theta) {
 	GsMat T;
 	GsMat R;
 	T.translation(t);
@@ -94,23 +103,11 @@ void rotateAboutShoulderY(GsMat& A, GsVec &t, const float theta) {
 	A.mult(A, T);
 }
 
-void rotateAboutShoulderZ(GsMat& A, GsVec &t, const float theta) {
+void rotateAboutJointZ(GsMat& A, GsVec &t, const float theta) {
 	GsMat T;
 	GsMat R;
 	T.translation(t);
 	R.rotz(theta);
-	A.mult(A, T);
-	A.mult(A, R);
-
-	T.translation(-t);
-	A.mult(A, T);
-}
-
-void rotateAboutElbowX(GsMat &A, GsVec &t, const float theta) {
-	GsMat T; 
-	GsMat R; 
-	T.translation(t);
-	R.rotx(theta);
 	A.mult(A, T);
 	A.mult(A, R);
 
@@ -407,6 +404,8 @@ void MyViewer::build_scene ()
 	buildLeftLowerLeg();
 	buildRightLowerLeg();
 
+
+	//Arms
 	translateUpperLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftUpperArm_T->get());
 	translateLeftElbow_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftElbowJoint_T->get());
 	translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
@@ -417,6 +416,14 @@ void MyViewer::build_scene ()
 
 	translateLowerLeftArm_El = calculatDeltas(leftElbowJoint_T->get(), leftLowerArm_T->get());
 	translateLowerRightArm_El = calculatDeltas(rightElbowJoint_T->get(), rightLowerArm_T->get());
+
+	//Legs
+
+	translateUpperLeftLeg_LJ = calculatDeltas(leftLegJoint_T->get(), leftUpperLeg_T->get());
+	translateLeftKnee_LJ = calculatDeltas(leftLegJoint_T->get(), leftKneeJoint_T->get());
+	translateLowerLeftLeg_LJ = calculatDeltas(leftLegJoint_T->get(), leftLowerLeg_T->get());
+
+
 }
 
 // Below is an example of how to control the main loop of an animation:
@@ -453,9 +460,9 @@ void MyViewer::negRotXAboutLSJ() {
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
 
 
-	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
-	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
-	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	rotateAboutJointX(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutJointX(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutJointX(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 	
 }
 void MyViewer::posRotXAboutLSJ() {
@@ -465,9 +472,9 @@ void MyViewer::posRotXAboutLSJ() {
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
 
 	
-	rotateAboutShoulderX(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
-	rotateAboutShoulderX(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
-	rotateAboutShoulderX(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
+	rotateAboutJointX(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutJointX(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutJointX(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::negRotYAboutLSJ() {
 	GsMat& leftShoulderRotMat = leftShoulderJoint_T->get();
@@ -477,9 +484,9 @@ void MyViewer::negRotYAboutLSJ() {
 
 
 
-	rotateAboutShoulderY(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
-	rotateAboutShoulderY(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
-	rotateAboutShoulderY(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	rotateAboutJointY(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutJointY(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutJointY(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 
 }
 void MyViewer::posRotYAboutLSJ() {
@@ -489,9 +496,9 @@ void MyViewer::posRotYAboutLSJ() {
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
 
 
-	rotateAboutShoulderY(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
-	rotateAboutShoulderY(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
-	rotateAboutShoulderY(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
+	rotateAboutJointY(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutJointY(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutJointY(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 
 }
 void MyViewer::posRotZAboutLSJ() {
@@ -501,9 +508,9 @@ void MyViewer::posRotZAboutLSJ() {
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
 
 
-	rotateAboutShoulderZ(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
-	rotateAboutShoulderZ(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
-	rotateAboutShoulderZ(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
+	rotateAboutJointZ(leftUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutJointZ(leftElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutJointZ(leftLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 
 }
 void MyViewer::negRotZAboutLSJ() {
@@ -513,9 +520,9 @@ void MyViewer::negRotZAboutLSJ() {
 	GsMat& leftUpperArmMat = leftUpperArm_T->get();
 	GsMat& leftLowerArmMat = leftLowerArm_T->get();
 
-	rotateAboutShoulderZ(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
-	rotateAboutShoulderZ(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
-	rotateAboutShoulderZ(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	rotateAboutJointZ(leftUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutJointZ(leftElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutJointZ(leftLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 
 }
 
@@ -526,9 +533,9 @@ void MyViewer::negRotXAboutRSJ() {
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
 
-	rotateAboutShoulderX(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
-	rotateAboutShoulderX(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
-	rotateAboutShoulderX(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	rotateAboutJointX(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutJointX(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutJointX(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 }
 void MyViewer::posRotXAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
@@ -536,9 +543,9 @@ void MyViewer::posRotXAboutRSJ() {
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
 	
-	rotateAboutShoulderX(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
-	rotateAboutShoulderX(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
-	rotateAboutShoulderX(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
+	rotateAboutJointX(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutJointX(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutJointX(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::negRotYAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
@@ -546,9 +553,9 @@ void MyViewer::negRotYAboutRSJ() {
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
 
-	rotateAboutShoulderY(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
-	rotateAboutShoulderY(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
-	rotateAboutShoulderY(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	rotateAboutJointY(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutJointY(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutJointY(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 }
 void MyViewer::posRotYAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
@@ -559,9 +566,9 @@ void MyViewer::posRotYAboutRSJ() {
 	GsMat T;
 
 
-	rotateAboutShoulderY(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
-	rotateAboutShoulderY(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
-	rotateAboutShoulderY(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
+	rotateAboutJointY(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutJointY(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutJointY(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::posRotZAboutRSJ() {
 
@@ -569,9 +576,9 @@ void MyViewer::posRotZAboutRSJ() {
 	GsMat& rightElbowRotMat = rightElbowJoint_T->get();
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
-	rotateAboutShoulderZ(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
-	rotateAboutShoulderZ(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
-	rotateAboutShoulderZ(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
+	rotateAboutJointZ(rightUpperArmMat, translateUpperLeftArm_Sh, 6.0f);
+	rotateAboutJointZ(rightElbowRotMat, translateLeftElbow_Sh, 6.0f);
+	rotateAboutJointZ(rightLowerArmMat, translateLowerLeftArm_Sh, 6.0f);
 }
 void MyViewer::negRotZAboutRSJ() {
 	GsMat& rightShoulderRotMat = rightShoulderJoint_T->get();
@@ -579,9 +586,9 @@ void MyViewer::negRotZAboutRSJ() {
 	GsMat& rightUpperArmMat = rightUpperArm_T->get();
 	GsMat& rightLowerArmMat = rightLowerArm_T->get();
 
-	rotateAboutShoulderZ(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
-	rotateAboutShoulderZ(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
-	rotateAboutShoulderZ(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
+	rotateAboutJointZ(rightUpperArmMat, translateUpperLeftArm_Sh, -6.0f);
+	rotateAboutJointZ(rightElbowRotMat, translateLeftElbow_Sh, -6.0f);
+	rotateAboutJointZ(rightLowerArmMat, translateLowerLeftArm_Sh, -6.0f);
 }
 
 //Left Elbow Joint
@@ -595,7 +602,7 @@ void MyViewer::negRotXAboutLEJ() {
 	
 	theta += 6.0f; 
 
-	rotateAboutElbowX(lowerLeftArm, translateLowerLeftArm_El, -6.0f);
+	rotateAboutJointX(lowerLeftArm, translateLowerLeftArm_El, -6.0f);
 
 }
 void MyViewer::posRotXAboutLEJ() {
@@ -607,7 +614,7 @@ void MyViewer::posRotXAboutLEJ() {
 
 	
 	theta -= 6.0f;
-	rotateAboutElbowX(lowerLeftArm, translateLowerLeftArm_El, 6.0f);
+	rotateAboutJointX(lowerLeftArm, translateLowerLeftArm_El, 6.0f);
 
 }
 
@@ -620,7 +627,7 @@ void MyViewer::negRotXAboutREJ() {
 
 	phi += 6.0f;
 
-	rotateAboutElbowX(lowerRightArm, translateLowerRightArm_El, -6.0f);
+	rotateAboutJointX(lowerRightArm, translateLowerRightArm_El, -6.0f);
 
 }
 
@@ -633,8 +640,45 @@ void MyViewer::posRotXAboutREJ() {
 
 	phi -= 6.0f;
 
-	rotateAboutElbowX(lowerRightArm, translateLowerRightArm_El, 6.0f);
+	rotateAboutJointX(lowerRightArm, translateLowerRightArm_El, 6.0f);
 }
+
+void MyViewer::posRotXAboutLLJ() {
+
+	rotateAboutJointX(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, 6.0);
+	rotateAboutJointX(leftKneeJoint_T->get(), translateLeftKnee_LJ, 6.0);
+	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, 6.0);
+}
+
+void MyViewer::posRotYAboutLLJ() {
+	rotateAboutJointY(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, 6.0);
+	rotateAboutJointY(leftKneeJoint_T->get(), translateLeftKnee_LJ, 6.0);
+	rotateAboutJointY(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, 6.0);
+}
+
+void MyViewer::posRotyZAboutLLJ() {
+	rotateAboutJointZ(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, 6.0);
+	rotateAboutJointZ(leftKneeJoint_T->get(), translateLeftKnee_LJ, 6.0);
+	rotateAboutJointZ(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, 6.0);
+}
+
+void MyViewer::negRotXAboutLLJ() {
+	rotateAboutJointX(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, -6.0);
+	rotateAboutJointX(leftKneeJoint_T->get(), translateLeftKnee_LJ, -6.0);
+	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, -6.0);
+}
+
+void MyViewer::negRotYAboutLLJ() {
+	rotateAboutJointY(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, -6.0);
+	rotateAboutJointY(leftKneeJoint_T->get(), translateLeftKnee_LJ, -6.0);
+	rotateAboutJointY(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, -6.0);
+}
+void MyViewer::negRotZAboutLLJ() {
+	rotateAboutJointZ(leftUpperLeg_T->get(), translateUpperLeftLeg_LJ, -6.0);
+	rotateAboutJointZ(leftKneeJoint_T->get(), translateLeftKnee_LJ, -6.0);
+	rotateAboutJointZ(leftLowerLeg_T->get(), translateLowerLeftLeg_LJ, -6.0);
+}
+
 
 void MyViewer::hello_animation() {
 	if (_animating) return; // avoid recursive calls
@@ -745,62 +789,62 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			return 1; 
 		}
 		case 'o':{
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			posRotZAboutRSJ();
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
 			ws_check();
 			render();
 			return 1; 
 
 		}
 		case 'p': {
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			negRotZAboutRSJ();
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
 
 			ws_check();
 			render();
 			return  1; 
 		}
 		case 'q': {
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			posRotZAboutLSJ();
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 			ws_check();
 			render();
 
 			return 1; 
 		}
 		case 'w': {
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			negRotZAboutLSJ();
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'j': {
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			negRotXAboutRSJ();
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'k': {
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			posRotXAboutRSJ();
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'a': {
 
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			negRotXAboutLSJ();
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 
 			ws_check();
 			render();
@@ -808,42 +852,42 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			return 1; 
 		}
 		case 's': {
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			posRotXAboutLSJ();
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'z': {
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			negRotYAboutLSJ();
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'x': {
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, theta);
 			posRotYAboutLSJ();
-			rotateAboutElbowX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
+			rotateAboutJointX(leftLowerArm_T->get(), translateLowerLeftArm_El, -theta);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case 'm': {
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			negRotYAboutRSJ();
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
 			ws_check();
 			render();
 			return 1; 
 		}
 		case ',': {
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, phi);
 			posRotYAboutRSJ();
-			rotateAboutElbowX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
+			rotateAboutJointX(rightLowerArm_T->get(), translateLowerRightArm_El, -phi);
 			ws_check();
 			render();
 			return 1; 
@@ -853,8 +897,6 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 
 			ws_check();
 			render();
-
-			//translateLowerLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftLowerArm_T->get());
 			
 			return 1; 
 		}
@@ -878,6 +920,43 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			render();
 
 			return 1;
+		}
+		case 'd': {
+			posRotXAboutLLJ();
+			ws_check();
+			render();
+
+			return 1; 
+		}
+		case 'c': {
+			posRotYAboutLLJ();
+			ws_check();
+			render();
+			return 1; 
+		}
+		case 't': {
+			posRotyZAboutLLJ();
+			ws_check();
+			render();
+			return 1; 
+		}
+		case 'g': {
+			negRotXAboutLLJ();
+			ws_check();
+			render();
+			return 1; 
+		}
+		case 'v': {
+			negRotYAboutLLJ();
+			ws_check();
+			render();
+			return 1; 
+		}
+		case 'b': {
+			negRotZAboutLLJ();
+			ws_check();
+			render();
+			return 1; 
 		}
 		/*case 'n' : { bool b=!_nbut->value(); _nbut->value(b); show_normals(b); return 1; }*/
 		default: gsout<<"Key pressed: "<<e.key<<gsnl;

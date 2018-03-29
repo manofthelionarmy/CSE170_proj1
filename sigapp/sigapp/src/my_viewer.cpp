@@ -52,13 +52,13 @@ static GsVec translateLeftKnee_LJ;
 static GsVec translateLowerLeftLeg_LJ;
 
 static GsVec translateUpperRightLeg_LJ;
-static GsVec translateRigthKnee_LJ; 
+static GsVec translateRightKnee_LJ; 
 static GsVec translateLowerRightLeg_LJ; 
 
 //Relative to Knee
 
 static GsVec translateLowerLeftLeg_KJ;
-static GsVec tranlsateLowerRightLeg_KJ;
+static GsVec translateLowerRightLeg_KJ;
 
 static float theta = 0.0f; 
 static float phi = 0.0f; 
@@ -430,7 +430,13 @@ void MyViewer::build_scene ()
 	translateLeftKnee_LJ = calculatDeltas(leftLegJoint_T->get(), leftKneeJoint_T->get());
 	translateLowerLeftLeg_LJ = calculatDeltas(leftLegJoint_T->get(), leftLowerLeg_T->get());
 
+	translateUpperRightLeg_LJ = calculatDeltas(rightLegJoint_T->get(), rightUpperLeg_T->get());
+	translateRightKnee_LJ = calculatDeltas(rightLegJoint_T->get(), rightKneeJoint_T->get());
+	translateLowerRightLeg_LJ = calculatDeltas(rightLegJoint_T->get(), rightLowerLeg_T->get());
+
+
 	translateLowerLeftLeg_KJ = calculatDeltas(leftKneeJoint_T->get(), leftLowerLeg_T->get());
+	translateLowerRightLeg_KJ = calculatDeltas(rightKneeJoint_T->get(), rightLowerLeg_T->get());
 
 
 }
@@ -699,6 +705,46 @@ void MyViewer::negRotXAboutLKJ() {
 	rotateAboutJointX(leftLowerLeg_T->get(), translateLowerLeftLeg_KJ, -6.0f);
 }
 
+void MyViewer::posRotXAboutRLJ() {
+	rotateAboutJointX(rightUpperLeg_T->get(), translateUpperRightLeg_LJ, 6.0f);
+	rotateAboutJointX(rightKneeJoint_T->get(), translateRightKnee_LJ, 6.0f);
+	rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_LJ, 6.0f);
+}
+void MyViewer::posRotYAboutRLJ() {
+	rotateAboutJointY(rightUpperLeg_T->get(), translateUpperRightLeg_LJ, 6.0f);
+	rotateAboutJointY(rightKneeJoint_T->get(), translateRightKnee_LJ, 6.0f);
+	rotateAboutJointY(rightLowerLeg_T->get(), translateLowerRightLeg_LJ, 6.0f);
+}
+void MyViewer::posRotZAboutRLJ() {
+	rotateAboutJointZ(rightUpperLeg_T->get(), translateUpperRightLeg_LJ, 6.0f);
+	rotateAboutJointZ(rightKneeJoint_T->get(), translateRightKnee_LJ, 6.0f);
+	rotateAboutJointZ(rightLowerLeg_T->get(), translateLowerRightLeg_LJ, 6.0f);
+}
+
+void MyViewer::negRotXAboutRLJ() {
+	rotateAboutJointX(rightUpperLeg_T->get(), translateUpperRightLeg_LJ, -6.0f);
+	rotateAboutJointX(rightKneeJoint_T->get(), translateRightKnee_LJ, -6.0f);
+	rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_LJ, -6.0f);
+}
+void MyViewer::negRotYAboutRLJ() {
+	rotateAboutJointY(rightUpperLeg_T->get(), translateUpperRightLeg_LJ, -6.0f);
+	rotateAboutJointY(rightKneeJoint_T->get(), translateRightKnee_LJ, -6.0f);
+	rotateAboutJointY(rightLowerLeg_T->get(), translateLowerRightLeg_LJ, -6.0f);
+}
+void MyViewer::negRotZAboutRLJ() {
+	rotateAboutJointZ(rightUpperLeg_T->get(), translateUpperRightLeg_LJ, -6.0f);
+	rotateAboutJointZ(rightKneeJoint_T->get(), translateRightKnee_LJ, -6.0f);
+	rotateAboutJointZ(rightLowerLeg_T->get(), translateLowerRightLeg_LJ, -6.0f);
+}
+
+void MyViewer::posRotXAboutRKJ() {
+	beta -= 6.0f;
+	rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, 6.0f);
+}
+void MyViewer::negRotXAboutRKJ() {
+	beta += 6.0f;
+	rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -6.0f);
+}
 void MyViewer::hello_animation() {
 	if (_animating) return; // avoid recursive calls
 	_animating = true;
@@ -1002,6 +1048,72 @@ int MyViewer::handle_keyboard ( const GsEvent &e )
 			ws_check();
 			render();
 			return 1; 
+		}
+		case '1': {
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, beta);
+			posRotXAboutRLJ();
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -beta);
+
+			ws_check();
+			render();
+			return 1; 
+		}
+		case '2': {
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, beta);
+			posRotYAboutRLJ();
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -beta);
+
+			ws_check();
+			render();
+			return 1; 
+		}
+		case '3': {
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, beta);
+			posRotZAboutRLJ();
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -beta);
+
+			ws_check();
+			render();
+			return 1;
+		}
+		case '4': {
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, beta);
+			negRotXAboutRLJ();
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -beta);
+
+			ws_check();
+			render();
+			return 1;
+		}
+		case '6': {
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, beta);
+			negRotYAboutRLJ();
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -beta);
+
+			ws_check();
+			render();
+			return 1;
+		}
+		case '7': {
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, beta);
+			negRotZAboutRLJ();
+			rotateAboutJointX(rightLowerLeg_T->get(), translateLowerRightLeg_KJ, -beta);
+
+			ws_check();
+			render();
+			return 1;
+		}
+		case '8': {
+			posRotXAboutRKJ();
+			ws_check();
+			render();
+			return 1; 
+		}
+		case '9': {
+			negRotXAboutRKJ();
+			ws_check();
+			render();
+			return 1;
 		}
 		/*case 'n' : { bool b=!_nbut->value(); _nbut->value(b); show_normals(b); return 1; }*/
 		default: gsout<<"Key pressed: "<<e.key<<gsnl;

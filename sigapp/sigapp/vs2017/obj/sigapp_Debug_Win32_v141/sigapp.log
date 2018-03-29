@@ -1,4 +1,6 @@
-﻿  my_viewer.cpp
+﻿  main.cpp
+  my_viewer.cpp
+  Generating Code...
 libsig32mdd.lib(gs.obj) : warning LNK4099: PDB 'libsig32mdd.pdb' was not found with 'libsig32mdd.lib(gs.obj)' or at 'C:\Users\Armando Leon\Desktop\workspace\CSE170_proj1\sigapp\sigapp\vs2017\obj\sigapp_Debug_Win32_v141\libsig32mdd.pdb'; linking object as if no debug info
 libsig32mdd.lib(gs_array.obj) : warning LNK4099: PDB 'libsig32mdd.pdb' was not found with 'libsig32mdd.lib(gs_array.obj)' or at 'C:\Users\Armando Leon\Desktop\workspace\CSE170_proj1\sigapp\sigapp\vs2017\obj\sigapp_Debug_Win32_v141\libsig32mdd.pdb'; linking object as if no debug info
 libsig32mdd.lib(gs_box.obj) : warning LNK4099: PDB 'libsig32mdd.pdb' was not found with 'libsig32mdd.lib(gs_box.obj)' or at 'C:\Users\Armando Leon\Desktop\workspace\CSE170_proj1\sigapp\sigapp\vs2017\obj\sigapp_Debug_Win32_v141\libsig32mdd.pdb'; linking object as if no debug info

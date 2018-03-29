@@ -95,6 +95,17 @@ class MyViewer : public WsViewer
 	void posRotXAboutLKJ();
 	void negRotXAboutLKJ();
 
+	void posRotXAboutRLJ();
+	void posRotYAboutRLJ();
+	void posRotZAboutRLJ();
+
+	void negRotXAboutRLJ();
+	void negRotYAboutRLJ();
+	void negRotZAboutRLJ();
+
+	void posRotXAboutRKJ();
+	void negRotXAboutRKJ();
+
 
 
 	void hello_animation();

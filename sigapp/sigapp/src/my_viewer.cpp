@@ -65,10 +65,12 @@ static float phi = 0.0f;
 static float alpha = 0.0f; 
 static float beta = 0.0f; 
 
+GsModel *m; 
+
 GsVec calculatDeltas(const GsMat& A, const GsMat& B) {
 	//A should be part1, B should be part2, C should be part3, if applicable
 	//Example: A is shoulder joint, B is elbow joint
-
+	
 	float x1 = A.e14;
 	float x2 = B.e14;
 
@@ -388,6 +390,69 @@ void MyViewer::buildRightLowerLeg() {
 	T.translation(GsVec(0.5f, -2.2f, 0.0f));
 	t.mult(t, T);
 }
+void MyViewer::buildFloor() {
+	SnModel *p = new SnModel();
+	GsModel &m = *p->model();
+	
+	GsVec A00 = GsVec(-5.0f, 0, -2.5f); 
+	GsVec A10 = GsVec(-5.0f, 0, 2.5f);
+	GsVec A01 = GsVec(5.0f, 0, -2.5f);
+	GsVec A11 = GsVec(5.0f, 0, 2.5f); 
+
+	//Push the points that make one triangle
+	m.V.push() = A00;
+	m.V.push() = A10;
+	m.V.push() = A01;
+
+	//Push the points that make the other triangle
+	m.V.push() = A10;
+	m.V.push() = A11;
+	m.V.push() = A01;
+	int a = 0; 
+	int b = 1; 
+	int c = 2; 
+	m.F.push() = GsModel::Face(a, b, c);
+	m.F.push() = GsModel::Face(a + 3, b + 3, c + 3);
+
+	/*m.N.push() = GsVec(0, 0, A00.z / (sqrtf(gs_pow(A00.x, 2) + gs_pow(A00.y, 2) + gs_pow(A00.z, 2))));
+	m.N.push() = GsVec(0, 0, A10.z / (sqrtf(gs_pow(A10.x, 2) + gs_pow(A10.y, 2) + gs_pow(A10.z, 2))));
+	m.N.push() = GsVec(0, 0, A01.z/ (sqrtf(gs_pow(A01.x, 2) + gs_pow(A01.y, 2) + gs_pow(A01.z, 2))));
+	
+	m.N.push() = GsVec(0, 0, A10.z / (sqrtf(gs_pow(A10.x, 2) + gs_pow(A10.y, 2) + gs_pow(A10.z, 2))));
+	m.N.push() = GsVec(0, 0, A11.z / (sqrtf(gs_pow(A11.x, 2) + gs_pow(A11.y, 2) + gs_pow(A11.z, 2))));
+	m.N.push() = GsVec(0, 0, A01.z/ (sqrtf(gs_pow(A01.x, 2) + gs_pow(A01.y, 2) + gs_pow(A01.z, 2))));*/
+
+	m.N.push() = GsVec(0, 0, 1);
+	m.N.push() = GsVec(0, 0, 1);
+	m.N.push() = GsVec(0, 0, 1);
+
+	m.N.push() = GsVec(0, 0, 1);
+	m.N.push() = GsVec(0, 0, 1);
+	m.N.push() = GsVec(0, 0, 1);
+
+	
+	m.T.push() = GsVec2(0.0f, 1.0f);
+	m.T.push() = GsVec2(0.0f, 0.0f);
+	m.T.push() = GsVec2(1.0f, 1.0f);
+
+	m.T.push() = GsVec2(0.0f, 0.0f);
+	m.T.push() = GsVec2(1.0f, 0.0f);
+	m.T.push() = GsVec2(1.0f, 1.0f);
+	
+	GsModel::Group &g = *m.G.push();
+	g.fi = 0;
+	g.fn = m.F.size();
+	g.dmap = new GsModel::Texture;
+	GsString filename = "..\\textures\\floor.jpg";
+	g.dmap->fname.set(filename);
+	m.M.push().init();
+
+	m.set_mode(GsModel::Smooth, GsModel::PerGroupMtl);
+	m.textured = true;
+	
+	add_model((SnPrimitive*)(p), GsVec(0, -2.5f, 0.0f), floor = new SnTransform);
+	//rootg()->add(p);
+}
 void MyViewer::build_scene ()
 {
 	buildTorso();
@@ -411,7 +476,7 @@ void MyViewer::build_scene ()
 	buildLeftLowerLeg();
 	buildRightLowerLeg();
 
-
+	buildFloor();
 	//Arms
 	translateUpperLeftArm_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftUpperArm_T->get());
 	translateLeftElbow_Sh = calculatDeltas(leftShoulderJoint_T->get(), leftElbowJoint_T->get());
@@ -438,7 +503,7 @@ void MyViewer::build_scene ()
 	translateLowerLeftLeg_KJ = calculatDeltas(leftKneeJoint_T->get(), leftLowerLeg_T->get());
 	translateLowerRightLeg_KJ = calculatDeltas(rightKneeJoint_T->get(), rightLowerLeg_T->get());
 
-
+	
 }
 
 // Below is an example of how to control the main loop of an animation:

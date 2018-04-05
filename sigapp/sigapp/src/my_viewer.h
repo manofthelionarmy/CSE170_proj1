@@ -13,6 +13,7 @@ class MyViewer : public WsViewer
 	enum MenuEv { EvNormals, EvAnimate, EvExit };
 	UiCheckButton* _nbut;
 	bool _animating;
+	//body parts
 	SnTransform *torso_T;
 	SnTransform *neck_T;
 	SnTransform *head_T;
@@ -33,6 +34,8 @@ class MyViewer : public WsViewer
 	SnTransform *rightKneeJoint_T;
 	SnTransform *leftLowerLeg_T;
 	SnTransform *rightLowerLeg_T;
+	//floor
+	SnTransform *floor; 
    public :
 	MyViewer ( int x, int y, int w, int h, const char* l );
 	void build_ui ();
@@ -58,6 +61,8 @@ class MyViewer : public WsViewer
 	void buildRightKneeJoint();
 	void buildLeftLowerLeg();
 	void buildRightLowerLeg();
+
+	void buildFloor();
 	void show_normals ( bool b );
 
 	void posRotXAboutRSJ();//rotate arm about the right shoulder joint about the x-axis in CCW

@@ -1,0 +1,20 @@
+﻿  test.cpp
+  test_array.cpp
+  test_arraylist.cpp
+  test_euler.cpp
+  test_graph.cpp
+  test_grid.cpp
+  test_heap.cpp
+  test_list.cpp
+  test_mat.cpp
+  test_matn.cpp
+  test_random.cpp
+  test_slot_map.cpp
+  test_string.cpp
+  test_structures.cpp
+  test_table.cpp
+  test_timer.cpp
+  test_vars.cpp
+  Generating Code...
+  gstests.vcxproj -> C:\Users\Armando Leon\Desktop\workspace\CSE170_proj1\sigapp\sig\vs2017\\obj\gstests_Debug_Win32_v141\gstests32mdd.exe
+          1 file(s) copied.
